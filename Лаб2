@@ -1,0 +1,28 @@
+fs = require('fs')
+
+function makeList(txt,reg,ips){
+	var k = txt.search(reg);
+	var i = 0;
+	if(k != -1){
+		while(txt[k+i]!=' '){
+			++i;
+		}
+		var str=txt.substr(k,i);
+		ips.push(str);
+		txt = txt.substr(k+i,txt.length-(k+i));
+		makeList(txt,reg,ips);
+	}
+}
+
+var txt = fs.readFileSync(process.argv[2], 'utf8') + "";
+var reg = new RegExp("\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b");
+var ips = [], ipList=[];
+makeList(txt,reg,ips);
+ips.sort();
+ipList.push(ips[0]);
+for(var i=1;i<ips.length;++i){
+    if(ips[i-1]!=ips[i]){
+        ipList.push(ips[i]);
+    }
+}
+console.log(ipList)
