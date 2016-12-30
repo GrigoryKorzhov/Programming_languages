@@ -1,0 +1,117 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace lab5
+{
+	class Program
+	{
+
+		public static void Main(string[] args)
+		{
+			string beam;
+			string segment;
+			beam = Console.ReadLine();
+			//segment = Console.ReadLine();
+
+			string beamInit = beam.Substring(0, beam.IndexOf(' '));
+			double beamInitX = Convert.ToDouble(beamInit.Substring(0, beamInit.IndexOf(',')).Replace('.', ','));
+			double beamInitY = Convert.ToDouble(beamInit.Substring(beamInit.IndexOf(',') + 1).Replace('.', ','));
+			string beamDot = beam.Substring(beam.IndexOf(' '));
+			double beamDotX = Convert.ToDouble(beamDot.Substring(0, beamDot.IndexOf(',')).Replace('.', ','));
+			double beamDotY = Convert.ToDouble(beamDot.Substring(beamDot.IndexOf(',') + 1).Replace('.', ','));
+			ray a = new ray();
+			a.a.x = beamInitX;
+			a.a.y = beamInitY;
+			a.x = beamDotX;
+			a.y = beamDotY;
+			while (true)
+			{
+				segment = Console.ReadLine();
+				if (segment == "")
+					break;
+
+				string segmentInit = segment.Substring(0, segment.IndexOf(' '));
+				double segmentInitX = Convert.ToDouble(segmentInit.Substring(0, segmentInit.IndexOf(',')).Replace('.', ','));
+				double segmentInitY = Convert.ToDouble(segmentInit.Substring(segmentInit.IndexOf(',') + 1).Replace('.', ','));
+				string segmentDot = segment.Substring(segment.IndexOf(' '));
+				double segmentDotX = Convert.ToDouble(segmentDot.Substring(0, segmentDot.IndexOf(',')).Replace('.', ','));
+				double segmentDotY = Convert.ToDouble(segmentDot.Substring(segmentDot.IndexOf(',') + 1).Replace('.', ','));
+				lineseg b = new lineseg();
+				b.a.x = segmentInitX;
+				b.a.y = segmentInitY;
+				b.b.x = segmentDotX;
+				b.b.y = segmentDotY;
+				pt res = new pt();
+				if (intersect(a, b, ref res))
+					Console.WriteLine("Пересечение: " + res.x.ToString().Replace(',','.') + "," + res.y.ToString().Replace(',', '.'));
+				else
+					Console.WriteLine("Пересечений нет");
+			}
+		}
+		public struct pt
+		{
+			public double x, y;
+		};
+		public struct line
+		{
+			public double a, b, c;
+		};
+		public struct ray
+		{
+			public pt a;
+			public double x, y;
+		};
+		public struct lineseg
+		{
+			public pt a, b;
+		}
+		public const double eps = 1e-9;
+		public static double det(double a, double b, double c, double d)
+		{
+			return a * d - b * c;
+		}
+		public static bool line_intersect(line m, line n, ref pt res)
+		{
+			double zn = det(m.a, m.b, n.a, n.b);
+			if (Math.Abs(zn) < eps)
+				return false;
+			res.x = -det(m.c, m.b, n.c, n.b) / zn;
+			res.y = -det(m.a, m.c, n.a, n.c) / zn;
+			return true;
+		}
+
+		public static bool intersect(ray a, lineseg b, ref pt res)
+		{
+			line m, n;
+			m.a = a.a.y - a.y;
+			m.b = a.x - a.a.x;
+			m.c = a.a.x * a.y - a.x * a.a.y;
+			n.a = b.a.y - b.b.y;
+			n.b = b.b.x - b.a.x;
+			n.c = b.a.x * b.b.y - b.b.x * b.a.y;
+			bool inter = line_intersect(m, n, ref res);
+			if (!inter)
+				return false;
+			if ((b.a.x < b.b.x) && (b.a.y < b.b.y) && !((b.a.x <= res.x) && (b.b.x >= res.x) && (b.a.y <= res.y) && (b.b.y >= res.y)))
+				return false;
+			if ((b.a.x < b.b.x) && (b.a.y > b.b.y) && !((b.a.x <= res.x) && (b.b.x >= res.x) && (b.a.y >= res.y) && (b.b.y <= res.y)))
+				return false;
+			if ((b.a.x > b.b.x) && (b.a.y < b.b.y) && !((b.a.x >= res.x) && (b.b.x <= res.x) && (b.a.y <= res.y) && (b.b.y >= res.y)))
+				return false;
+			if ((b.a.x > b.b.x) && (b.a.y > b.b.y) && !((b.a.x >= res.x) && (b.b.x <= res.x) && (b.a.y >= res.y) && (b.b.y <= res.y)))
+				return false;
+			if ((a.a.x < a.x) && (a.a.y < a.y) && !((res.x >= a.a.x) && (res.y >= a.a.y)))
+				return false;
+			if ((a.a.x < a.x) && (a.a.y > a.y) && !((res.x >= a.a.x) && (res.y <= a.a.y)))
+				return false;
+			if ((a.a.x > a.x) && (a.a.y < a.y) && !((res.x <= a.a.x) && (res.y >= a.a.y)))
+				return false;
+			if ((a.a.x > a.x) && (a.a.y > a.y) && !((res.x <= a.a.x) && (res.y <= a.a.y)))
+				return false;
+			return true;
+		}
+
+	}
+}
